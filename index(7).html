@@ -1,0 +1,1676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monthly Daily Quick Test Register - SED Punjab</title>
+  
+  <!-- Tailwind CSS & FontAwesome CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #f1f5f9;
+      overflow-x: hidden;
+    }
+    
+    /* Exact Palette matching Punjab SED Register */
+    .sheet-green-dark { background-color: #164e28; color: #ffffff; }
+    .sheet-green-mid { background-color: #a9d08e; color: #1e3a10; }
+    .sheet-green-sub { background-color: #c6e0b4; color: #1e3a10; }
+    .sheet-green-light { background-color: #e2efda; }
+    .sheet-yellow-head { background-color: #ffd966; color: #594300; }
+    .sheet-yellow-light { background-color: #fff2cc; }
+    .sheet-blue-head { background-color: #9bc2e6; color: #103860; }
+    .sheet-blue-light { background-color: #ddebf7; }
+
+    /* Custom subtle styling for off-day columns */
+    .cell-off-day {
+      background-color: #f1f5f9 !important;
+      color: #94a3b8 !important;
+      cursor: not-allowed;
+    }
+
+    /* Red mark for Absent */
+    .text-absent {
+      color: #dc2626 !important;
+      font-weight: 800 !important;
+    }
+
+    /* Isolated Horizontal Scrolling for Tables */
+    .table-responsive-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-x: contain;
+    }
+    .table-responsive-wrapper::-webkit-scrollbar {
+      height: 8px;
+    }
+    .table-responsive-wrapper::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 4px;
+    }
+    .table-responsive-wrapper::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .table-responsive-wrapper::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* Print Optimization */
+    @media print {
+      body { background: #ffffff !important; padding: 0 !important; font-size: 10px !important; }
+      .no-print { display: none !important; }
+      .page-break { page-break-after: always; break-after: page; }
+      .report-card { box-shadow: none !important; border: 1px solid #94a3b8 !important; width: 100% !important; margin: 0 !important; padding: 10px !important; }
+      .table-responsive-wrapper { overflow-x: visible !important; }
+      table { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; width: 100% !important; min-width: 100% !important; font-size: 8.5px !important; }
+      input, select, textarea { border: none !important; background: transparent !important; padding: 0 !important; }
+      @page { size: landscape; margin: 6mm; }
+    }
+  </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+  <!-- TOP APP BAR -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm no-print">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-800 to-green-600 flex items-center justify-center text-white shadow-md shadow-green-700/20">
+          <i class="fa-solid fa-graduation-cap text-lg"></i>
+        </div>
+        <div>
+          <h1 class="text-sm sm:text-base font-bold leading-tight flex items-center gap-2 text-slate-900">
+            Monthly Daily Quick Test Register
+            <span id="syncBadge" class="text-[10px] px-2 py-0.5 rounded-full font-medium bg-amber-100 text-amber-800">Demo Active</span>
+          </h1>
+          <p class="text-xs text-slate-500">School Education Department Punjab • Continuous Assessment</p>
+        </div>
+      </div>
+
+      <!-- Action Controls -->
+      <div class="flex items-center flex-wrap gap-2">
+        <div class="bg-slate-100 p-1 rounded-xl flex items-center text-xs font-bold text-slate-600">
+          <button onclick="switchView('page1')" id="tabBtn1" class="px-3 py-1.5 rounded-lg bg-white shadow-sm text-emerald-900 transition">
+            <i class="fa-solid fa-users mr-1"></i> Page 1 (Student Record)
+          </button>
+          <button onclick="switchView('page2')" id="tabBtn2" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">
+            <i class="fa-solid fa-chart-line mr-1"></i> Page 2 (Class Summary)
+          </button>
+        </div>
+
+        <button onclick="fetchSheetData()" id="btnFetch" class="px-3 py-1.5 text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition flex items-center gap-1.5">
+          <i class="fa-solid fa-arrows-rotate"></i> Pull Sheet Data
+        </button>
+        <button onclick="saveToSheet()" id="btnSave" class="px-3.5 py-1.5 text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 rounded-lg shadow-sm shadow-emerald-700/30 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-cloud-arrow-up"></i> Save to Sheet
+        </button>
+        <button onclick="window.print()" class="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition flex items-center gap-1.5">
+          <i class="fa-solid fa-print"></i> Print
+        </button>
+        <button onclick="openSettingsModal()" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition" title="School Branding & Sheet Settings">
+          <i class="fa-solid fa-gear text-sm"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTROLS & FILTER BAR WITH REPORT DURATION OPTIONS -->
+  <section class="max-w-7xl mx-auto w-full px-3 sm:px-6 pt-4 no-print">
+    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+      
+      <!-- Upper Controls Row -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-3">
+        <!-- 1. Class Dropdown -->
+        <div>
+          <label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1">
+            <i class="fa-solid fa-school text-emerald-600 mr-1"></i> Class
+          </label>
+          <select id="classSelect" onchange="onClassChange()" class="w-full text-xs font-bold bg-slate-50 border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500"></select>
+        </div>
+
+        <!-- Section -->
+        <div>
+          <label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1">
+            <i class="fa-solid fa-layer-group text-emerald-600 mr-1"></i> Section
+          </label>
+          <input type="text" id="sectionInput" value="A" oninput="updateHeaderMetadata()" class="w-full text-xs font-bold bg-slate-50 border border-slate-300 rounded-lg p-1.5 focus:ring-2 focus:ring-emerald-500 uppercase">
+        </div>
+
+        <!-- 2. Subject Dropdown -->
+        <div>
+          <label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1">
+            <i class="fa-solid fa-book text-emerald-600 mr-1"></i> Subject
+          </label>
+          <select id="subjectSelect" onchange="onSubjectChange()" class="w-full text-xs font-bold bg-slate-50 border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500"></select>
+        </div>
+
+        <!-- 3. Entry Mode / Student Select -->
+        <div>
+          <label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1">
+            <i class="fa-solid fa-user-graduate text-emerald-600 mr-1"></i> Entry Mode
+          </label>
+          <select id="studentSelect" onchange="onStudentChange()" class="w-full text-xs font-bold bg-slate-50 border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500"></select>
+        </div>
+
+        <!-- 4. Month Picker -->
+        <div>
+          <label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1">
+            <i class="fa-solid fa-calendar text-emerald-600 mr-1"></i> Month
+          </label>
+          <input type="month" id="monthPicker" value="2026-10" onchange="onMonthChange()" class="w-full text-xs font-bold bg-slate-50 border border-slate-300 rounded-lg p-1.5 focus:ring-2 focus:ring-emerald-500">
+        </div>
+
+        <!-- 5. Report Type Scope (Daily / Weekly / Fortnightly / Monthly) -->
+        <div>
+          <label class="block text-[10px] font-extrabold text-emerald-700 uppercase mb-1">
+            <i class="fa-solid fa-filter text-emerald-600 mr-1"></i> Report Type
+          </label>
+          <select id="reportTypeSelect" onchange="onReportTypeChange()" class="w-full text-xs font-black bg-emerald-50 border border-emerald-300 text-emerald-950 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500">
+            <option value="monthly" selected>Monthly Report (Full Month)</option>
+            <option value="fortnightly_1">Fortnightly (1st Half: Days 1-15)</option>
+            <option value="fortnightly_2">Fortnightly (2nd Half: Days 16-End)</option>
+            <option value="weekly_1">Weekly (Week 1: Days 1-7)</option>
+            <option value="weekly_2">Weekly (Week 2: Days 8-14)</option>
+            <option value="weekly_3">Weekly (Week 3: Days 15-21)</option>
+            <option value="weekly_4">Weekly (Week 4: Days 22-28)</option>
+            <option value="weekly_5">Weekly (Week 5: Days 29-End)</option>
+            <option value="daily">Daily Report (Select Single Day)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Specific Day Selector (Visible only if 'daily' is selected) -->
+      <div id="dailySpecificRow" class="hidden pt-2 border-t border-slate-100 flex items-center gap-3">
+        <span class="text-xs font-extrabold text-emerald-800">Select Specific Day for Daily Report:</span>
+        <select id="specificDaySelect" onchange="updateCalendar()" class="text-xs font-bold bg-slate-50 border border-slate-300 rounded-lg p-1.5 focus:ring-emerald-500 w-36"></select>
+      </div>
+
+      <!-- Off-Days Selection Checkboxes -->
+      <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div class="flex items-center flex-wrap gap-2">
+          <span class="font-extrabold text-slate-700 uppercase mr-1">
+            <i class="fa-solid fa-calendar-xmark text-red-500 mr-1"></i> Off-Days:
+          </span>
+          <label class="inline-flex items-center font-medium text-slate-600 cursor-pointer">
+            <input type="checkbox" name="offDays" value="1" onchange="updateCalendar()" class="rounded border-slate-300 text-emerald-600 mr-1"> Mon
+          </label>
+          <label class="inline-flex items-center font-medium text-slate-600 cursor-pointer">
+            <input type="checkbox" name="offDays" value="2" onchange="updateCalendar()" class="rounded border-slate-300 text-emerald-600 mr-1"> Tue
+          </label>
+          <label class="inline-flex items-center font-medium text-slate-600 cursor-pointer">
+            <input type="checkbox" name="offDays" value="3" onchange="updateCalendar()" class="rounded border-slate-300 text-emerald-600 mr-1"> Wed
+          </label>
+          <label class="inline-flex items-center font-medium text-slate-600 cursor-pointer">
+            <input type="checkbox" name="offDays" value="4" onchange="updateCalendar()" class="rounded border-slate-300 text-emerald-600 mr-1"> Thu
+          </label>
+          <label class="inline-flex items-center font-medium text-slate-600 cursor-pointer">
+            <input type="checkbox" name="offDays" value="5" onchange="updateCalendar()" class="rounded border-slate-300 text-emerald-600 mr-1"> Fri
+          </label>
+          <label class="inline-flex items-center font-semibold text-red-700 bg-red-50 px-2 py-0.5 rounded cursor-pointer">
+            <input type="checkbox" name="offDays" value="6" checked onchange="updateCalendar()" class="rounded border-slate-300 text-red-600 mr-1"> Sat (Off)
+          </label>
+          <label class="inline-flex items-center font-semibold text-red-700 bg-red-50 px-2 py-0.5 rounded cursor-pointer">
+            <input type="checkbox" name="offDays" value="0" checked onchange="updateCalendar()" class="rounded border-slate-300 text-red-600 mr-1"> Sun (Off)
+          </label>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <span class="text-slate-500 font-medium">Period Working Days: <b id="workingDaysBadge" class="text-emerald-800 font-extrabold">22 Days</b></span>
+          <button onclick="toggleTopicModal()" class="px-3 py-1 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-lg font-bold flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-pen-to-square text-amber-600"></i> Daily Topic & Remedial Entry
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SINGLE STUDENT DOCK (3 Cells Per Row, Off-days hidden) -->
+  <section id="singleStudentDock" class="max-w-7xl mx-auto w-full px-3 sm:px-6 pt-3 hidden no-print">
+    <div class="bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-100 rounded-2xl p-4 border border-emerald-300 shadow-sm">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+        <div>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-900 bg-emerald-200 px-2 py-0.5 rounded-full">Single Student Entry Mode</span>
+          <h2 id="singleStudentTitle" class="text-sm sm:text-base font-extrabold text-slate-900 mt-1">Student: Roll #</h2>
+          <p class="text-[11px] text-slate-500">Enter marks (0-10) or mark <span class="font-bold text-red-600">A</span> for Absent. Empty cells are not counted in average.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="bg-white px-3 py-1 rounded-xl border border-emerald-200 text-xs">
+            <span class="text-slate-400 block text-[9px] font-bold">MONTHLY SBA (OUT OF 50)</span>
+            <input type="number" id="singleStudentSba" min="0" max="50" onchange="syncSingleStudentSba(this.value)" class="font-black text-amber-800 bg-transparent border-none p-0 w-16 text-center text-sm focus:ring-0">
+          </div>
+          <div class="bg-white px-3 py-1 rounded-xl border border-emerald-200 text-xs">
+            <span class="text-slate-400 block text-[9px] font-bold">REMARKS</span>
+            <input type="text" id="singleStudentRemarks" list="remarksList" onchange="syncSingleStudentRemarks(this.value)" class="font-bold text-sky-900 bg-transparent border-none p-0 w-36 text-xs focus:ring-0">
+          </div>
+        </div>
+      </div>
+
+      <div id="singleStudentDaysGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5"></div>
+    </div>
+  </section>
+
+  <!-- REPORT VIEWER CONTAINER -->
+  <main class="max-w-7xl mx-auto w-full p-2 sm:p-4 lg:p-6 space-y-8 flex-grow">
+
+    <!-- ================= PAGE 1: STUDENT-WISE RECORD ================= -->
+    <div id="reportPage1" class="report-card bg-white rounded-2xl shadow-xl border border-slate-200 p-4 sm:p-6 page-break">
+      
+      <!-- TOP BANNER (PDF PAGE 1) -->
+      <div class="border-b-2 border-slate-800 pb-3 mb-3">
+        <div id="p1HeaderBannerContainer" class="hidden mb-2">
+          <img id="p1HeaderBannerImg" src="" alt="Header Banner" class="w-full max-h-28 object-cover rounded-lg border">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+          <div class="md:col-span-3 flex items-center space-x-2.5">
+            <div class="w-14 h-14 rounded-full bg-emerald-50 border border-emerald-400 flex items-center justify-center p-1 flex-shrink-0">
+              <img id="p1SchoolLogo" src="https://images.unsplash.com/photo-1594608661623-aa0bd3a69d98?w=120&auto=format&fit=crop&q=80" alt="Logo" class="w-full h-full object-contain rounded-full">
+            </div>
+            <div>
+              <h2 class="text-xs font-black text-emerald-950 uppercase leading-tight">School Education<br>Department Punjab</h2>
+              <p class="text-[9px] text-slate-600 font-semibold mt-0.5">Quality Education for a Brighter Punjab</p>
+            </div>
+          </div>
+
+          <div class="md:col-span-6 text-center">
+            <div class="sheet-green-dark text-white font-extrabold text-sm sm:text-base py-1 px-4 rounded-md tracking-wider uppercase shadow-sm">
+              <span id="p1TitleReportType">MONTHLY</span> DAILY QUICK TEST REGISTER
+            </div>
+            <div class="sheet-yellow-head font-extrabold text-xs py-0.5 px-3 rounded-sm mt-1 uppercase tracking-wide border border-amber-400">
+              STUDENT-WISE RECORD (Page 1 of 2) • <span id="p1SubtitleRange">OCTOBER 2026</span>
+            </div>
+            <div class="text-[10px] font-black text-slate-700 tracking-widest mt-1">ASSESS • LEARN • IMPROVE</div>
+          </div>
+
+          <div class="md:col-span-3 flex items-center justify-end space-x-3">
+            <div class="text-right">
+              <div class="font-black text-[11px] text-slate-800 uppercase leading-none">BETTER<br>SCHOOLS<br>BRIGHTER<br>PUNJAB</div>
+            </div>
+            <div class="w-12 h-14 bg-slate-100 rounded border border-slate-300 overflow-hidden flex items-center justify-center flex-shrink-0">
+              <img id="cmPunjabPhoto1" src="https://images.unsplash.com/photo-1544717305-2782549b5136?w=100&auto=format&fit=crop&q=80" alt="CM Punjab" class="w-full h-full object-cover">
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-3 bg-slate-50 border border-slate-300 rounded-lg p-2 grid grid-cols-2 sm:grid-cols-6 gap-2 text-xs">
+          <div class="col-span-2 sm:col-span-2">
+            <span class="text-slate-400 font-bold block text-[9px] uppercase">School Name:</span>
+            <span id="p1SchoolName" class="font-extrabold text-slate-900 truncate block">GOVT. ELEMENTARY SCHOOL 22R/RB</span>
+          </div>
+          <div>
+            <span class="text-slate-400 font-bold block text-[9px] uppercase">EMIS Code:</span>
+            <span id="p1EmisCode" class="font-bold text-slate-800">33140426</span>
+          </div>
+          <div>
+            <span class="text-slate-400 font-bold block text-[9px] uppercase">Class & Section:</span>
+            <span id="p1ClassSec" class="font-bold text-slate-800">Grade 10 - A</span>
+          </div>
+          <div>
+            <span class="text-slate-400 font-bold block text-[9px] uppercase">Subject:</span>
+            <span id="p1Subject" class="font-bold text-slate-800">Mathematics</span>
+          </div>
+          <div class="text-right">
+            <span id="p1BadgeReportType" class="sheet-green-mid inline-block px-2 py-1 rounded text-[10px] font-bold text-emerald-950 border border-emerald-400">
+              Page 1 of 2 (Monthly)
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABLE 1 (Isolated Horizontal Scrolling) -->
+      <div class="table-responsive-wrapper border border-slate-400 rounded-lg shadow-sm mb-4">
+        <table id="assessmentTable" class="min-w-full w-full text-xs text-center border-collapse border border-slate-400">
+          <thead>
+            <tr>
+              <th rowspan="2" class="sheet-green-dark border border-slate-400 py-2.5 px-1.5 w-10 font-bold uppercase">Sr.<br>No.</th>
+              <th rowspan="2" class="sheet-green-dark border border-slate-400 py-2.5 px-3 w-48 text-left font-bold uppercase">Student Name</th>
+              <th rowspan="2" class="sheet-green-dark border border-slate-400 py-2.5 px-2 w-14 font-bold uppercase">Roll<br>No.</th>
+              <th id="p1DailyHeader" colspan="31" class="sheet-green-mid border border-slate-400 py-1 font-bold">
+                Daily Quick Test Marks (Out of 10) - (<span id="p1DaysCountLabel">22</span> Working Days Data)
+              </th>
+              <th rowspan="2" class="sheet-green-mid border border-slate-400 py-2 px-1 w-16 font-bold uppercase">Total<br><span class="text-[9px] font-normal">(Out of <span id="p1MaxTotal">220</span>)</span></th>
+              <th rowspan="2" class="sheet-green-mid border border-slate-400 py-2 px-1 w-16 font-bold uppercase">Average<br><span class="text-[9px] font-normal">(Out of 10)</span></th>
+              <th rowspan="2" class="sheet-yellow-head border border-slate-400 py-2 px-1 w-20 font-bold uppercase">Monthly<br>Assessment (SBA)<br><span class="text-[9px] font-normal">(Out of 50)</span></th>
+              <th rowspan="2" class="sheet-blue-head border border-slate-400 py-2 px-3 w-44 font-bold uppercase">Remarks<br><span class="text-[9px] font-normal">(e.g. Needs Support/ Good Progress)</span></th>
+            </tr>
+            <tr id="p1SubHeaderDaysRow"></tr>
+          </thead>
+          <tbody id="studentTableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- FOOTER: INSTRUCTIONS, DECLARATIONS & VERIFICATION (PDF PAGE 1) -->
+      <div class="mt-4 pt-3 border-t-2 border-slate-800 space-y-3">
+        <div id="p1FooterBannerContainer" class="hidden mb-2">
+          <img id="p1FooterBannerImg" src="" alt="Footer Stamp" class="w-full max-h-24 object-cover rounded-lg border">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 text-xs">
+          <div class="md:col-span-5 bg-slate-50 p-3 rounded-xl border border-slate-300">
+            <h4 class="font-extrabold text-slate-800 uppercase text-[10px] tracking-wider mb-1.5 flex items-center gap-1.5">
+              <i class="fa-solid fa-list-check text-emerald-700"></i> INSTRUCTIONS FOR TEACHERS
+            </h4>
+            <ol class="list-decimal list-inside space-y-0.5 text-[10px] text-slate-700 font-medium">
+              <li>Conduct a 10-minute daily quick test for all students.</li>
+              <li>Enter each student's marks (out of 10) on the same day.</li>
+              <li>Calculate total and average at the end of the month/period.</li>
+              <li>Record Monthly Assessment (SBA) marks.</li>
+              <li>Use remarks to highlight progress or learning support needs.</li>
+              <li>Keep this register updated and available for monitoring visits.</li>
+            </ol>
+          </div>
+
+          <div class="md:col-span-4 bg-slate-50 p-3 rounded-xl border border-slate-300 flex flex-col justify-between">
+            <div>
+              <h4 class="font-extrabold text-slate-800 uppercase text-[10px] tracking-wider mb-1 flex items-center gap-1.5">
+                <i class="fa-solid fa-signature text-emerald-700"></i> CLASS TEACHER DECLARATION
+              </h4>
+              <p class="text-[9.5px] text-slate-600 leading-tight">
+                I confirm that the daily quick tests have been conducted as per instructions and the record has been maintained regularly.
+              </p>
+            </div>
+            <div class="grid grid-cols-3 gap-2 mt-2 pt-2 border-t border-slate-200 text-[10px]">
+              <div><span class="text-slate-400 block text-[8px]">Name:</span><input type="text" value="M. Aslam" class="font-bold border-none p-0 w-full bg-transparent"></div>
+              <div><span class="text-slate-400 block text-[8px]">Signature:</span><div class="font-serif italic text-slate-500 border-b border-dotted border-slate-400">Signed</div></div>
+              <div><span class="text-slate-400 block text-[8px]">Date:</span><input type="text" value="31-10-2026" class="font-bold border-none p-0 w-full bg-transparent"></div>
+            </div>
+          </div>
+
+          <div class="md:col-span-3 bg-slate-50 p-3 rounded-xl border border-slate-300 flex flex-col justify-between">
+            <h4 class="font-extrabold text-slate-800 uppercase text-[10px] tracking-wider mb-1 flex items-center gap-1.5">
+              <i class="fa-solid fa-stamp text-emerald-700"></i> REVIEW / VERIFICATION
+            </h4>
+            <div class="space-y-1.5 text-[9.5px]">
+              <div class="border-b border-slate-200 pb-1">
+                <div class="flex justify-between items-center"><span class="font-bold text-slate-700">Head Teacher:</span><span class="italic text-slate-400 font-serif">Sign / Stamp</span></div>
+                <div class="text-[8.5px] text-slate-500 mt-0.5">Date: <input type="text" value="31-10-2026" class="font-bold border-none p-0 w-20 bg-transparent"></div>
+              </div>
+              <div>
+                <div class="flex justify-between items-center"><span class="font-bold text-slate-700">Reviewed by (DEO/AEO):</span><span class="italic text-slate-400 font-serif">Sign / Stamp</span></div>
+                <div class="text-[8.5px] text-slate-500 mt-0.5">Date: <input type="text" value="02-11-2026" class="font-bold border-none p-0 w-20 bg-transparent"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 text-center text-xs">
+          <div class="sheet-green-dark text-white py-1.5 px-3 rounded-lg flex items-center justify-between">
+            <span class="font-black text-amber-300 text-xs uppercase tracking-wide">"Every Student Matters"</span>
+            <span class="text-[10px] text-slate-200 font-medium">School Education Department Punjab • Together for Quality Education</span>
+          </div>
+          <div class="sheet-yellow-head py-1.5 px-3 rounded-lg flex items-center justify-between border border-amber-400">
+            <span class="font-bold italic text-[11px] text-amber-950">"Consistent assessment today leads to stronger learning tomorrow."</span>
+            <span class="text-[9.5px] font-extrabold uppercase text-amber-900 tracking-wider">Brighter Punjab</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= PAGE 2: DAILY CLASS SUMMARY ================= -->
+    <div id="reportPage2" class="report-card bg-white rounded-2xl shadow-xl border border-slate-200 p-4 sm:p-6">
+      
+      <!-- TOP BANNER (PDF PAGE 2) -->
+      <div class="border-b-2 border-slate-800 pb-3 mb-3">
+        <div id="p2HeaderBannerContainer" class="hidden mb-2">
+          <img id="p2HeaderBannerImg" src="" alt="Header Banner" class="w-full max-h-28 object-cover rounded-lg border">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+          <div class="md:col-span-3 flex items-center space-x-2.5">
+            <div class="w-14 h-14 rounded-full bg-emerald-50 border border-emerald-400 flex items-center justify-center p-1 flex-shrink-0">
+              <img id="p2SchoolLogo" src="https://images.unsplash.com/photo-1594608661623-aa0bd3a69d98?w=120&auto=format&fit=crop&q=80" alt="Logo" class="w-full h-full object-contain rounded-full">
+            </div>
+            <div>
+              <h2 class="text-xs font-black text-emerald-950 uppercase leading-tight">School Education<br>Department Punjab</h2>
+              <p class="text-[9px] text-slate-600 font-semibold mt-0.5">Quality Education for a Brighter Punjab</p>
+            </div>
+          </div>
+
+          <div class="md:col-span-6 text-center">
+            <div class="sheet-green-dark text-white font-extrabold text-sm sm:text-base py-1 px-4 rounded-md tracking-wider uppercase shadow-sm">
+              <span id="p2TitleReportType">MONTHLY</span> DAILY QUICK TEST REGISTER
+            </div>
+            <div class="sheet-yellow-head font-extrabold text-xs py-0.5 px-3 rounded-sm mt-1 uppercase tracking-wide border border-amber-400">
+              DAILY CLASS SUMMARY (Page 2 of 2) • <span id="p2SubtitleRange">OCTOBER 2026</span>
+            </div>
+            <div class="text-[10px] font-black text-slate-700 tracking-widest mt-1">ASSESS • LEARN • IMPROVE</div>
+          </div>
+
+          <div class="md:col-span-3 flex items-center justify-end space-x-3">
+            <div class="text-right">
+              <div class="font-black text-[11px] text-slate-800 uppercase leading-none">BETTER<br>SCHOOLS<br>BRIGHTER<br>PUNJAB</div>
+            </div>
+            <div class="w-12 h-14 bg-slate-100 rounded border border-slate-300 overflow-hidden flex items-center justify-center flex-shrink-0">
+              <img id="cmPunjabPhoto2" src="https://images.unsplash.com/photo-1544717305-2782549b5136?w=100&auto=format&fit=crop&q=80" alt="CM Punjab" class="w-full h-full object-cover">
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-3 bg-slate-50 border border-slate-300 rounded-lg p-2 grid grid-cols-2 sm:grid-cols-6 gap-2 text-xs">
+          <div class="col-span-2 sm:col-span-2">
+            <span class="text-slate-400 font-bold block text-[9px] uppercase">School Name:</span>
+            <span id="p2SchoolName" class="font-extrabold text-slate-900 truncate block">GOVT. ELEMENTARY SCHOOL 22R/RB</span>
+          </div>
+          <div>
+            <span class="text-slate-400 font-bold block text-[9px] uppercase">EMIS Code:</span>
+            <span id="p2EmisCode" class="font-bold text-slate-800">33140426</span>
+          </div>
+          <div>
+            <span class="text-slate-400 font-bold block text-[9px] uppercase">Class & Section:</span>
+            <span id="p2ClassSec" class="font-bold text-slate-800">Grade 10 - A</span>
+          </div>
+          <div>
+            <span class="text-slate-400 font-bold block text-[9px] uppercase">Subject:</span>
+            <span id="p2Subject" class="font-bold text-slate-800">Mathematics</span>
+          </div>
+          <div class="text-right">
+            <span id="p2BadgeReportType" class="sheet-green-mid inline-block px-2 py-1 rounded text-[10px] font-bold text-emerald-950 border border-emerald-400">
+              Page 2 of 2 (Monthly)
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABLE 2 (Isolated Horizontal Scrolling) -->
+      <div class="table-responsive-wrapper border border-slate-400 rounded-lg shadow-sm mb-4">
+        <table id="summaryTable" class="min-w-full w-full text-xs text-center border-collapse border border-slate-400">
+          <thead>
+            <tr class="sheet-green-dark text-white font-bold">
+              <th class="border border-slate-400 py-2 px-1 w-12">Date<br><span class="text-[9px] font-normal">(DD/MM)</span></th>
+              <th class="border border-slate-400 py-2 px-1 w-14">Day<br><span class="text-[9px] font-normal">(Mon/Tue)</span></th>
+              <th class="border border-slate-400 py-2 px-3 w-64 text-left">Topic / Concept Tested<br><span class="text-[9px] font-normal opacity-90">(As per Lesson Plan)</span></th>
+              <th class="border border-slate-400 py-2 px-1 w-14">Total<br>Students</th>
+              <th class="border border-slate-400 py-2 px-1 w-12">Present</th>
+              <th class="border border-slate-400 py-2 px-1 w-12">Absent</th>
+              <th class="border border-slate-400 py-2 px-2 w-16">Class Average<br><span class="text-[9px] font-normal opacity-90">(Out of 10)</span></th>
+              <th class="border border-slate-400 py-2 px-2 w-20">Students Scoring<br>Below 5<br><span class="text-[9px] font-normal opacity-90">(Needs Support)</span></th>
+              <th class="border border-slate-400 py-2 px-3 w-64 text-left">Key Learning Gaps / Observations<br><span class="text-[9px] font-normal opacity-90">(e.g. concepts not clear, common mistakes)</span></th>
+              <th class="sheet-blue-head border border-slate-400 py-2 px-3 w-64 text-left">Follow-up/Remedial Action<br><span class="text-[9px] font-normal opacity-90 text-sky-950">(e.g. revision, group work, re-teach)</span></th>
+            </tr>
+          </thead>
+          <tbody id="summaryTableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- FOOTER: MONTHLY CLASS SUMMARY, TEACHER REFLECTION & SIGNATURES (PDF PAGE 2) -->
+      <div class="mt-4 pt-3 border-t-2 border-slate-800 space-y-3">
+        <div id="p2FooterBannerContainer" class="hidden mb-2">
+          <img id="p2FooterBannerImg" src="" alt="Footer Stamp" class="w-full max-h-24 object-cover rounded-lg border">
+        </div>
+
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-300">
+          <h4 class="font-extrabold text-slate-800 uppercase text-[10px] tracking-wider mb-2 flex items-center justify-between">
+            <span><i class="fa-solid fa-clipboard-check text-emerald-700 mr-1"></i> <span id="summaryFooterTitle">MONTHLY</span> CLASS SUMMARY <span class="text-slate-500 font-normal">(Filled at period end)</span></span>
+            <span class="text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded font-black text-[10px]">Active Working Days: <span id="summaryWorkingDaysCount">22</span></span>
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+            <div>
+              <label class="block text-[9px] font-bold text-slate-500 uppercase mb-0.5">Topics Covered in this Period:</label>
+              <textarea rows="2" class="w-full text-[10px] font-medium bg-white border border-slate-300 rounded p-1.5 focus:ring-1 focus:ring-emerald-500" placeholder="List chapters & core topics covered..."></textarea>
+            </div>
+            <div>
+              <label class="block text-[9px] font-bold text-slate-500 uppercase mb-0.5">Major Learning Gaps:</label>
+              <textarea rows="2" class="w-full text-[10px] font-medium bg-white border border-slate-300 rounded p-1.5 focus:ring-1 focus:ring-emerald-500" placeholder="Common misconceptions or difficulties..."></textarea>
+            </div>
+            <div>
+              <label class="block text-[9px] font-bold text-slate-500 uppercase mb-0.5">Action Taken / Remedial Plan:</label>
+              <textarea rows="2" class="w-full text-[10px] font-medium bg-white border border-slate-300 rounded p-1.5 focus:ring-1 focus:ring-emerald-500" placeholder="Remedial schedule, revisions planned..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 text-xs">
+          <div class="md:col-span-7 bg-slate-50 p-3 rounded-xl border border-slate-300 space-y-2">
+            <h4 class="font-extrabold text-slate-800 uppercase text-[10px] tracking-wider flex items-center justify-between">
+              <span><i class="fa-solid fa-lightbulb text-amber-600 mr-1"></i> TEACHER'S REFLECTION</span>
+              <span class="text-amber-900 bg-amber-100 px-2 py-0.5 rounded font-bold text-[10px]">
+                Average Class Score (Out of 10): <b id="summaryClassMonthlyAvg" class="font-black text-amber-950">7.6</b>
+              </span>
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px]">
+              <div>
+                <label class="block text-slate-500 font-semibold mb-0.5">What worked well?</label>
+                <input type="text" class="w-full bg-white border border-slate-300 rounded p-1 font-medium" placeholder="e.g. Daily quick tests boosted retention">
+              </div>
+              <div>
+                <label class="block text-slate-500 font-semibold mb-0.5">Challenges faced and support needed:</label>
+                <input type="text" class="w-full bg-white border border-slate-300 rounded p-1 font-medium" placeholder="e.g. Need extra revision worksheets">
+              </div>
+            </div>
+          </div>
+
+          <div class="md:col-span-5 bg-slate-50 p-3 rounded-xl border border-slate-300 flex flex-col justify-between">
+            <h4 class="font-extrabold text-slate-800 uppercase text-[10px] tracking-wider mb-1">
+              <i class="fa-solid fa-pen-nib text-emerald-700 mr-1"></i> SIGNATURES
+            </h4>
+            <div class="grid grid-cols-3 gap-2 text-[9.5px]">
+              <div class="border-t border-slate-400 pt-1 text-center">
+                <span class="block font-bold text-slate-800">Class Teacher</span>
+                <span class="block text-[8px] text-slate-400">Date: 31-10-2026</span>
+              </div>
+              <div class="border-t border-slate-400 pt-1 text-center">
+                <span class="block font-bold text-slate-800">Head Teacher</span>
+                <span class="block text-[8px] text-slate-400">Date: 31-10-2026</span>
+              </div>
+              <div class="border-t border-slate-400 pt-1 text-center">
+                <span class="block font-bold text-slate-800">DEO / AEO</span>
+                <span class="block text-[8px] text-slate-400">Date: 02-11-2026</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 text-center text-xs">
+          <div class="sheet-green-dark text-white py-1.5 px-3 rounded-lg flex items-center justify-between">
+            <span class="font-black text-amber-300 text-xs tracking-wider uppercase">ASSESS TODAY • SUPPORT LEARNERS • IMPROVE TOMORROW</span>
+          </div>
+          <div class="sheet-yellow-head py-1.5 px-3 rounded-lg flex items-center justify-between border border-amber-400">
+            <span class="font-bold italic text-[11px] text-amber-950">"Regular assessment today leads to stronger learners tomorrow."</span>
+            <span class="text-[9.5px] font-extrabold uppercase text-amber-900 tracking-wider">Together for Quality Education</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- DAILY TOPIC ENTRY MODAL -->
+  <div id="topicModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-3 sm:p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-5 shadow-2xl border border-slate-200">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-chalkboard-user text-emerald-600"></i> Daily Topic & Observation Entry
+        </h3>
+        <button onclick="toggleTopicModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="py-3 space-y-2.5 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Select Working Day in Active Report Range</label>
+          <select id="topicDaySelect" onchange="loadDayTopicFields()" class="w-full font-bold bg-slate-50 border border-slate-300 rounded-lg p-2 focus:ring-emerald-500"></select>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Topic / Concept Tested (As per Lesson Plan)</label>
+          <input type="text" id="topicInput" placeholder="e.g. Quadratic Equations Ex 1.2" class="w-full font-medium bg-slate-50 border border-slate-300 rounded-lg p-2">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Key Learning Gaps / Observations</label>
+          <textarea id="gapsInput" rows="2" placeholder="e.g. Formula memorization issues, sign confusion" class="w-full font-medium bg-slate-50 border border-slate-300 rounded-lg p-2"></textarea>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Follow-up / Remedial Action</label>
+          <textarea id="remedialInput" rows="2" placeholder="e.g. Step-by-step board revision, peer tutoring" class="w-full font-medium bg-slate-50 border border-slate-300 rounded-lg p-2"></textarea>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-200">
+        <button onclick="toggleTopicModal()" class="px-4 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg">Cancel</button>
+        <button onclick="saveDayTopic()" class="px-4 py-1.5 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-lg">Apply Topic Info</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CENTRALIZED SETTINGS MODAL (GEAR BUTTON) -->
+  <div id="settingsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-3 sm:p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full p-5 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+        <h3 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-sliders text-emerald-600"></i> Settings & Branding Customization
+        </h3>
+        <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <div class="py-3 space-y-3.5 text-xs">
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2.5">
+          <h4 class="font-extrabold text-slate-800 uppercase tracking-wider text-[10px]">School Profile & Credentials</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div>
+              <label class="block font-semibold text-slate-600 mb-0.5">School Name</label>
+              <input type="text" id="settingSchoolName" value="GOVT. ELEMENTARY SCHOOL 22R/RB" class="w-full font-bold bg-white border border-slate-300 rounded-lg p-1.5">
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-600 mb-0.5">EMIS Code</label>
+              <input type="text" id="settingEmisCode" value="33140426" class="w-full font-bold bg-white border border-slate-300 rounded-lg p-1.5">
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1.5">
+          <h4 class="font-extrabold text-slate-800 uppercase tracking-wider text-[10px]">Google Apps Script Web App Deployment URL</h4>
+          <input type="url" id="scriptUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full font-mono text-xs bg-white border border-slate-300 rounded-lg p-1.5">
+          <p class="text-[10px] text-slate-500">Must end with <b>/exec</b> and be deployed with <b>"Who has access: Anyone"</b>.</p>
+        </div>
+
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2.5">
+          <h4 class="font-extrabold text-slate-800 uppercase tracking-wider text-[10px]">Branding Images</h4>
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-slate-700">1. School Crest / Logo:</span>
+            <label class="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-100 rounded-lg cursor-pointer font-bold text-slate-700">
+              <i class="fa-solid fa-upload mr-1"></i> Upload
+              <input type="file" accept="image/*" class="hidden" onchange="uploadImage(event, 'logo')">
+            </label>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-slate-700">2. CM Punjab Portrait:</span>
+            <label class="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-100 rounded-lg cursor-pointer font-bold text-slate-700">
+              <i class="fa-solid fa-upload mr-1"></i> Upload
+              <input type="file" accept="image/*" class="hidden" onchange="uploadImage(event, 'cm')">
+            </label>
+          </div>
+          <div class="flex items-center justify-between border-t border-slate-200 pt-2">
+            <span class="font-semibold text-slate-700">3. Page 1 Header Banner:</span>
+            <div class="space-x-1">
+              <label class="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-100 rounded-lg cursor-pointer font-bold text-slate-700">
+                <i class="fa-solid fa-upload mr-1"></i> Upload
+                <input type="file" accept="image/*" class="hidden" onchange="uploadImage(event, 'p1Header')">
+              </label>
+              <button onclick="removeImage('p1Header')" class="px-2 py-1 text-red-600 hover:bg-red-50 rounded-lg"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-slate-700">4. Page 1 Footer Stamp:</span>
+            <div class="space-x-1">
+              <label class="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-100 rounded-lg cursor-pointer font-bold text-slate-700">
+                <i class="fa-solid fa-upload mr-1"></i> Upload
+                <input type="file" accept="image/*" class="hidden" onchange="uploadImage(event, 'p1Footer')">
+              </label>
+              <button onclick="removeImage('p1Footer')" class="px-2 py-1 text-red-600 hover:bg-red-50 rounded-lg"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </div>
+          <div class="flex items-center justify-between border-t border-slate-200 pt-2">
+            <span class="font-semibold text-slate-700">5. Page 2 Header Banner:</span>
+            <div class="space-x-1">
+              <label class="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-100 rounded-lg cursor-pointer font-bold text-slate-700">
+                <i class="fa-solid fa-upload mr-1"></i> Upload
+                <input type="file" accept="image/*" class="hidden" onchange="uploadImage(event, 'p2Header')">
+              </label>
+              <button onclick="removeImage('p2Header')" class="px-2 py-1 text-red-600 hover:bg-red-50 rounded-lg"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-slate-700">6. Page 2 Footer Stamp:</span>
+            <div class="space-x-1">
+              <label class="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-100 rounded-lg cursor-pointer font-bold text-slate-700">
+                <i class="fa-solid fa-upload mr-1"></i> Upload
+                <input type="file" accept="image/*" class="hidden" onchange="uploadImage(event, 'p2Footer')">
+              </label>
+              <button onclick="removeImage('p2Footer')" class="px-2 py-1 text-red-600 hover:bg-red-50 rounded-lg"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2.5 border-t border-slate-200">
+        <button onclick="closeSettingsModal()" class="px-4 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg">Cancel</button>
+        <button onclick="saveSettings()" class="px-4 py-1.5 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-lg">Save & Sync</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed bottom-5 right-5 hidden bg-slate-900 text-white text-xs px-4 py-2.5 rounded-xl shadow-xl z-50 items-center gap-3">
+    <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+    <span id="toastMessage">Action completed.</span>
+  </div>
+
+  <datalist id="remarksList">
+    <option value="Good Progress">
+    <option value="Needs Support">
+    <option value="Excellent">
+    <option value="Satisfactory">
+    <option value="Irregular">
+  </datalist>
+
+  <!-- JAVASCRIPT APPLICATION LOGIC -->
+  <script>
+    let scriptURL = localStorage.getItem("sheetScriptURL") || "";
+    let daysInMonth = 31;
+    let selectedYear = 2026;
+    let selectedMonthIndex = 9; // October (0-indexed)
+    let offDaysSet = new Set([0, 6]); // Sunday (0) and Saturday (6)
+
+    // Range for dynamic reports: [startDay, endDay]
+    let activeRangeStart = 1;
+    let activeRangeEnd = 31;
+    let reportTypeTitle = "MONTHLY";
+
+    let masterStudents = [
+      { class: "Grade 10 - A", rollNo: "101", name: "Muhammad Ali", admNo: "AD-4821" },
+      { class: "Grade 10 - A", rollNo: "102", name: "Sarah Ahmed", admNo: "AD-4822" },
+      { class: "Grade 10 - A", rollNo: "103", name: "Zainab Fatima", admNo: "AD-4823" },
+      { class: "Grade 10 - B", rollNo: "201", name: "Hamza Tariq", admNo: "AD-4901" }
+    ];
+
+    let masterSubjects = [
+      { class: "Grade 10 - A", subject: "Mathematics" },
+      { class: "Grade 10 - A", subject: "Physics" },
+      { class: "Grade 10 - A", subject: "English" },
+      { class: "Grade 10 - B", subject: "General Science" }
+    ];
+
+    let marksRecord = {};
+    let dailyTopicRecord = {};
+
+    window.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("scriptUrlInput").value = scriptURL;
+      loadSavedBranding();
+      initDefaultMarks();
+      initDefaultTopics();
+      populateSpecificDaysDropdown();
+      onReportTypeChange(); // calculates range and calendar
+      if (scriptURL) {
+        fetchSheetData();
+      } else {
+        populateClassDropdown();
+      }
+    });
+
+    function initDefaultMarks() {
+      masterStudents.forEach(st => {
+        if (!marksRecord[st.admNo]) {
+          marksRecord[st.admNo] = { marks: {}, sba: 38, remarks: "Good Progress" };
+          for (let d = 1; d <= 5; d++) {
+            marksRecord[st.admNo].marks[d] = (d % 2 === 0) ? 8 : (d === 3 ? "A" : 9);
+          }
+        }
+      });
+    }
+
+    function initDefaultTopics() {
+      dailyTopicRecord[1] = { topic: "Quadratic Equations Ex 1.1", gaps: "Formula identification issues", remedial: "Board problem solving" };
+      dailyTopicRecord[2] = { topic: "Factorization Technique", gaps: "Sign error in factoring negative signs", remedial: "Peer discussion & worksheets" };
+    }
+
+    function populateSpecificDaysDropdown() {
+      const select = document.getElementById("specificDaySelect");
+      select.innerHTML = "";
+      for (let d = 1; d <= daysInMonth; d++) {
+        const opt = document.createElement("option");
+        opt.value = d;
+        opt.innerText = `Day ${d}`;
+        select.appendChild(opt);
+      }
+    }
+
+    // REPORT TYPE LOGIC (Daily, Weekly, Fortnightly, Monthly)
+    function onReportTypeChange() {
+      const mode = document.getElementById("reportTypeSelect").value;
+      const dailyRow = document.getElementById("dailySpecificRow");
+      daysInMonth = new Date(selectedYear, selectedMonthIndex + 1, 0).getDate();
+
+      if (mode === "daily") {
+        dailyRow.classList.remove("hidden");
+        const specificDay = parseInt(document.getElementById("specificDaySelect").value) || 1;
+        activeRangeStart = specificDay;
+        activeRangeEnd = specificDay;
+        reportTypeTitle = `DAILY (Day ${specificDay})`;
+      } else {
+        dailyRow.classList.add("hidden");
+        if (mode === "monthly") {
+          activeRangeStart = 1;
+          activeRangeEnd = daysInMonth;
+          reportTypeTitle = "MONTHLY";
+        } else if (mode === "fortnightly_1") {
+          activeRangeStart = 1;
+          activeRangeEnd = Math.min(15, daysInMonth);
+          reportTypeTitle = "FORTNIGHTLY (1st Half: Days 1-15)";
+        } else if (mode === "fortnightly_2") {
+          activeRangeStart = 16;
+          activeRangeEnd = daysInMonth;
+          reportTypeTitle = `FORTNIGHTLY (2nd Half: Days 16-${daysInMonth})`;
+        } else if (mode === "weekly_1") {
+          activeRangeStart = 1;
+          activeRangeEnd = Math.min(7, daysInMonth);
+          reportTypeTitle = "WEEKLY (Week 1: Days 1-7)";
+        } else if (mode === "weekly_2") {
+          activeRangeStart = 8;
+          activeRangeEnd = Math.min(14, daysInMonth);
+          reportTypeTitle = "WEEKLY (Week 2: Days 8-14)";
+        } else if (mode === "weekly_3") {
+          activeRangeStart = 15;
+          activeRangeEnd = Math.min(21, daysInMonth);
+          reportTypeTitle = "WEEKLY (Week 3: Days 15-21)";
+        } else if (mode === "weekly_4") {
+          activeRangeStart = 22;
+          activeRangeEnd = Math.min(28, daysInMonth);
+          reportTypeTitle = "WEEKLY (Week 4: Days 22-28)";
+        } else if (mode === "weekly_5") {
+          activeRangeStart = 29;
+          activeRangeEnd = daysInMonth;
+          reportTypeTitle = `WEEKLY (Week 5: Days 29-${daysInMonth})`;
+        }
+      }
+
+      // Update Titles
+      document.getElementById("p1TitleReportType").innerText = reportTypeTitle.split(" ")[0];
+      document.getElementById("p2TitleReportType").innerText = reportTypeTitle.split(" ")[0];
+      document.getElementById("p1SubtitleRange").innerText = reportTypeTitle;
+      document.getElementById("p2SubtitleRange").innerText = reportTypeTitle;
+      document.getElementById("p1BadgeReportType").innerText = `Page 1 of 2 (${reportTypeTitle.split(" ")[0]})`;
+      document.getElementById("p2BadgeReportType").innerText = `Page 2 of 2 (${reportTypeTitle.split(" ")[0]})`;
+      document.getElementById("summaryFooterTitle").innerText = reportTypeTitle.split(" ")[0];
+
+      updateCalendar();
+    }
+
+    function onMonthChange() {
+      const val = document.getElementById("monthPicker").value;
+      if (!val) return;
+      const parts = val.split("-");
+      selectedYear = parseInt(parts[0]);
+      selectedMonthIndex = parseInt(parts[1]) - 1;
+
+      daysInMonth = new Date(selectedYear, selectedMonthIndex + 1, 0).getDate();
+      populateSpecificDaysDropdown();
+      onReportTypeChange();
+    }
+
+    function updateCalendar() {
+      offDaysSet.clear();
+      document.querySelectorAll('input[name="offDays"]:checked').forEach(cb => {
+        offDaysSet.add(parseInt(cb.value));
+      });
+
+      // Calculate working days inside activeRangeStart..activeRangeEnd
+      let workingDaysCount = 0;
+      for (let day = activeRangeStart; day <= activeRangeEnd; day++) {
+        const dObj = new Date(selectedYear, selectedMonthIndex, day);
+        if (!offDaysSet.has(dObj.getDay())) workingDaysCount++;
+      }
+
+      const totalColsInRange = (activeRangeEnd - activeRangeStart + 1);
+
+      document.getElementById("workingDaysBadge").innerText = `${workingDaysCount} Days`;
+      document.getElementById("p1DaysCountLabel").innerText = workingDaysCount;
+      document.getElementById("p1MaxTotal").innerText = workingDaysCount * 10;
+      document.getElementById("p1DailyHeader").colSpan = totalColsInRange;
+      document.getElementById("summaryWorkingDaysCount").innerText = workingDaysCount;
+
+      renderPage1Headers();
+      renderPage1Table();
+      renderPage2Summary();
+      renderSingleStudentDock();
+      populateTopicDayDropdown();
+    }
+
+    function renderPage1Headers() {
+      const row = document.getElementById("p1SubHeaderDaysRow");
+      row.innerHTML = "";
+      const dayNames = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+
+      for (let day = activeRangeStart; day <= activeRangeEnd; day++) {
+        const dayOfWeek = new Date(selectedYear, selectedMonthIndex, day).getDay();
+        const isOff = offDaysSet.has(dayOfWeek);
+
+        const th = document.createElement("th");
+        th.className = `border border-slate-400 py-1 px-0.5 text-center font-bold text-[9px] ${
+          isOff ? "cell-off-day" : "sheet-green-sub"
+        }`;
+        th.style.minWidth = "28px";
+        th.innerHTML = `<div>${day}</div><div class="text-[8px] font-normal opacity-75">${dayNames[dayOfWeek]}</div>`;
+        row.appendChild(th);
+      }
+    }
+
+    // DROPDOWNS: CLASS & SUBJECT
+    function populateClassDropdown() {
+      const classSelect = document.getElementById("classSelect");
+      const currentSelected = classSelect.value;
+      const classes = [...new Set(masterStudents.map(s => s.class))].filter(Boolean);
+
+      classSelect.innerHTML = "";
+      classes.forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = c;
+        opt.innerText = c;
+        classSelect.appendChild(opt);
+      });
+
+      if (classes.includes(currentSelected)) classSelect.value = currentSelected;
+      onClassChange();
+    }
+
+    function onClassChange() {
+      const selectedClass = document.getElementById("classSelect").value;
+      updateHeaderMetadata();
+
+      const subjectSelect = document.getElementById("subjectSelect");
+      subjectSelect.innerHTML = "";
+      const classSubjects = masterSubjects.filter(sub => sub.class === selectedClass);
+
+      if (classSubjects.length > 0) {
+        classSubjects.forEach(s => {
+          const opt = document.createElement("option");
+          opt.value = s.subject;
+          opt.innerText = s.subject;
+          subjectSelect.appendChild(opt);
+        });
+      } else {
+        subjectSelect.innerHTML = `<option value="Mathematics">Mathematics</option><option value="General Science">General Science</option>`;
+      }
+      onSubjectChange();
+
+      const studentSelect = document.getElementById("studentSelect");
+      studentSelect.innerHTML = `<option value="ALL">All Students of Class (Class-wise View)</option>`;
+      const filtered = masterStudents.filter(s => s.class === selectedClass);
+      filtered.forEach(st => {
+        const opt = document.createElement("option");
+        opt.value = st.admNo;
+        opt.innerText = `Roll #${st.rollNo} - ${st.name} (${st.admNo})`;
+        studentSelect.appendChild(opt);
+      });
+
+      onStudentChange();
+    }
+
+    function onSubjectChange() {
+      updateHeaderMetadata();
+    }
+
+    function updateHeaderMetadata() {
+      const cls = document.getElementById("classSelect").value;
+      const sec = document.getElementById("sectionInput").value.trim() || "A";
+      const sub = document.getElementById("subjectSelect").value || "Mathematics";
+      const displayClassSec = `${cls} - ${sec}`;
+
+      document.getElementById("p1ClassSec").innerText = displayClassSec;
+      document.getElementById("p2ClassSec").innerText = displayClassSec;
+      document.getElementById("p1Subject").innerText = sub;
+      document.getElementById("p2Subject").innerText = sub;
+    }
+
+    function onStudentChange() {
+      const admNo = document.getElementById("studentSelect").value;
+      const dock = document.getElementById("singleStudentDock");
+
+      if (admNo === "ALL") {
+        dock.classList.add("hidden");
+      } else {
+        dock.classList.remove("hidden");
+        const student = masterStudents.find(s => s.admNo === admNo);
+        if (student) {
+          document.getElementById("singleStudentTitle").innerText = `${student.name} (Roll #${student.rollNo} - Adm: ${student.admNo})`;
+          const rec = marksRecord[admNo] || { marks: {}, sba: 0, remarks: "" };
+          document.getElementById("singleStudentSba").value = rec.sba || 0;
+          document.getElementById("singleStudentRemarks").value = rec.remarks || "";
+        }
+      }
+
+      renderPage1Table();
+      renderSingleStudentDock();
+    }
+
+    // STATS CALCULATION (Dynamic per active range)
+    function calculateStudentStats(admNo) {
+      const record = marksRecord[admNo] || { marks: {} };
+      let sum = 0;
+      let evaluatedDays = 0;
+
+      for (let day = activeRangeStart; day <= activeRangeEnd; day++) {
+        const dayOfWeek = new Date(selectedYear, selectedMonthIndex, day).getDay();
+        if (offDaysSet.has(dayOfWeek)) continue;
+
+        const raw = record.marks[day];
+        if (raw === undefined || raw === null || raw === "") continue;
+
+        const strVal = String(raw).trim().toUpperCase();
+        if (strVal === "A") {
+          evaluatedDays++;
+        } else if (!isNaN(Number(strVal))) {
+          evaluatedDays++;
+          sum += Number(strVal);
+        }
+      }
+
+      const avg = evaluatedDays > 0 ? (sum / evaluatedDays).toFixed(1) : "-";
+      return { sum, evaluatedDays, avg };
+    }
+
+    // RENDER PAGE 1 TABLE (Filtered to active range)
+    function renderPage1Table() {
+      const tbody = document.getElementById("studentTableBody");
+      tbody.innerHTML = "";
+
+      const selectedClass = document.getElementById("classSelect").value;
+      const selectedStudent = document.getElementById("studentSelect").value;
+
+      let visibleStudents = masterStudents.filter(s => s.class === selectedClass);
+      if (selectedStudent !== "ALL") {
+        visibleStudents = visibleStudents.filter(s => s.admNo === selectedStudent);
+      }
+
+      const colSpanTotal = (activeRangeEnd - activeRangeStart + 1) + 7;
+      if (visibleStudents.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="${colSpanTotal}" class="py-6 text-slate-400 italic">No students found. Load from 'Students' tab in Google Sheets.</td></tr>`;
+        return;
+      }
+
+      visibleStudents.forEach((st, idx) => {
+        if (!marksRecord[st.admNo]) marksRecord[st.admNo] = { marks: {}, sba: 0, remarks: "" };
+        const record = marksRecord[st.admNo];
+        const stats = calculateStudentStats(st.admNo);
+
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-50 transition-colors";
+
+        let rowHtml = `
+          <td class="border border-slate-400 py-1 px-1 font-bold text-slate-700 bg-white">${idx + 1}</td>
+          <td class="border border-slate-400 py-1 px-2 text-left font-semibold bg-white whitespace-nowrap">${st.name}</td>
+          <td class="border border-slate-400 py-1 px-1 font-bold text-slate-800 bg-white font-mono text-[11px]">${st.rollNo}</td>
+        `;
+
+        for (let day = activeRangeStart; day <= activeRangeEnd; day++) {
+          const dayOfWeek = new Date(selectedYear, selectedMonthIndex, day).getDay();
+          const isOff = offDaysSet.has(dayOfWeek);
+          const val = record.marks[day] !== undefined ? record.marks[day] : "";
+          const isAbsent = String(val).toUpperCase() === "A";
+
+          if (isOff) {
+            rowHtml += `<td class="border border-slate-400 py-1 px-0.5 cell-off-day font-bold text-[8px]">OFF</td>`;
+          } else {
+            rowHtml += `
+              <td class="border border-slate-400 py-0.5 px-0.5 bg-white">
+                <input type="text" maxlength="2" value="${val}"
+                  onchange="onTableMarkInput('${st.admNo}', ${day}, this.value)"
+                  class="w-full text-center bg-transparent border-none p-0 focus:outline-none focus:bg-emerald-100 font-bold ${isAbsent ? 'text-absent' : 'text-slate-800'}">
+              </td>
+            `;
+          }
+        }
+
+        rowHtml += `
+          <td class="border border-slate-400 py-1 px-1 font-bold sheet-green-light text-emerald-950">${stats.sum}</td>
+          <td class="border border-slate-400 py-1 px-1 font-bold sheet-green-light text-emerald-950">${stats.avg}</td>
+          <td class="border border-slate-400 py-1 px-1 font-bold sheet-yellow-light text-amber-950">
+            <input type="number" min="0" max="50" value="${record.sba || 0}"
+              onchange="updateSBA('${st.admNo}', this.value)"
+              class="w-full text-center font-bold bg-transparent border-none p-0 focus:ring-1 focus:ring-amber-500">
+          </td>
+          <td class="border border-slate-400 py-1 px-2 text-left sheet-blue-light">
+            <input type="text" list="remarksList" value="${record.remarks || ''}"
+              onchange="updateRemarks('${st.admNo}', this.value)"
+              class="w-full text-xs font-semibold bg-transparent border-none p-0 focus:ring-1 focus:ring-blue-500 text-sky-950">
+          </td>
+        `;
+
+        tr.innerHTML = rowHtml;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // SINGLE STUDENT GRID (Filtered to active range, 3 Cells Per Row, Off-days hidden)
+    function renderSingleStudentDock() {
+      const selectedStudent = document.getElementById("studentSelect").value;
+      if (selectedStudent === "ALL") return;
+
+      const container = document.getElementById("singleStudentDaysGrid");
+      container.innerHTML = "";
+
+      const record = marksRecord[selectedStudent] || { marks: {} };
+      const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+      const workingDays = [];
+      for (let day = activeRangeStart; day <= activeRangeEnd; day++) {
+        const dObj = new Date(selectedYear, selectedMonthIndex, day);
+        if (!offDaysSet.has(dObj.getDay())) {
+          workingDays.push({ day, dayName: dayNames[dObj.getDay()] });
+        }
+      }
+
+      if (workingDays.length === 0) {
+        container.innerHTML = `<div class="col-span-3 text-center text-slate-400 italic py-2">No active working days in selected range.</div>`;
+        return;
+      }
+
+      workingDays.forEach(({ day, dayName }) => {
+        const val = record.marks[day] !== undefined ? record.marks[day] : "";
+        const isAbsent = String(val).toUpperCase() === "A";
+
+        const card = document.createElement("div");
+        card.className = "bg-white p-2.5 rounded-xl border border-emerald-300 shadow-sm flex items-center justify-between";
+
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center space-x-1.5">
+              <span class="w-5 h-5 rounded-full bg-emerald-700 text-white font-extrabold text-[10px] flex items-center justify-center">${day}</span>
+              <span class="text-xs font-bold text-slate-800">${dayName}</span>
+            </div>
+            <span class="text-[9px] text-slate-400 block mt-0.5">Test Mark (0-10) or 'A'</span>
+          </div>
+
+          <div class="flex items-center space-x-1.5">
+            <input type="text" maxlength="2" value="${val}"
+              onchange="onSingleMarkChange('${selectedStudent}', ${day}, this.value)"
+              placeholder="-"
+              class="w-10 h-8 text-center font-black text-xs rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 ${isAbsent ? 'text-absent bg-red-50' : 'text-slate-800 bg-slate-50'}">
+            
+            <button onclick="toggleAbsent('${selectedStudent}', ${day})" class="px-2 py-1 text-[10px] font-bold rounded-lg border ${isAbsent ? 'bg-red-600 text-white border-red-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border-slate-300'}" title="Mark Absent">
+              A
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function onTableMarkInput(admNo, day, rawVal) {
+      saveMarkValue(admNo, day, rawVal);
+      renderPage1Table();
+      renderPage2Summary();
+      if (document.getElementById("studentSelect").value === admNo) renderSingleStudentDock();
+    }
+
+    function onSingleMarkChange(admNo, day, rawVal) {
+      saveMarkValue(admNo, day, rawVal);
+      renderPage1Table();
+      renderPage2Summary();
+      renderSingleStudentDock();
+    }
+
+    function toggleAbsent(admNo, day) {
+      const current = marksRecord[admNo]?.marks[day];
+      const newVal = (String(current).toUpperCase() === "A") ? "" : "A";
+      saveMarkValue(admNo, day, newVal);
+      renderPage1Table();
+      renderPage2Summary();
+      renderSingleStudentDock();
+    }
+
+    function saveMarkValue(admNo, day, rawVal) {
+      if (!marksRecord[admNo]) marksRecord[admNo] = { marks: {} };
+      const trimmed = String(rawVal).trim();
+
+      if (trimmed === "") {
+        delete marksRecord[admNo].marks[day];
+      } else if (trimmed.toUpperCase() === "A") {
+        marksRecord[admNo].marks[day] = "A";
+      } else {
+        const num = Math.min(10, Math.max(0, Number(trimmed) || 0));
+        marksRecord[admNo].marks[day] = num;
+      }
+
+      const stats = calculateStudentStats(admNo);
+      if (stats.avg !== "-") {
+        const numAvg = parseFloat(stats.avg);
+        if (numAvg >= 7.5) marksRecord[admNo].remarks = "Good Progress";
+        else if (numAvg >= 5.0) marksRecord[admNo].remarks = "Satisfactory";
+        else marksRecord[admNo].remarks = "Needs Support";
+      }
+    }
+
+    function updateSBA(admNo, val) {
+      if (!marksRecord[admNo]) marksRecord[admNo] = { marks: {} };
+      marksRecord[admNo].sba = Math.min(50, Math.max(0, Number(val) || 0));
+    }
+
+    function updateRemarks(admNo, val) {
+      if (!marksRecord[admNo]) marksRecord[admNo] = { marks: {} };
+      marksRecord[admNo].remarks = val;
+    }
+
+    function syncSingleStudentSba(val) {
+      const admNo = document.getElementById("studentSelect").value;
+      if (admNo !== "ALL") {
+        updateSBA(admNo, val);
+        renderPage1Table();
+      }
+    }
+
+    function syncSingleStudentRemarks(val) {
+      const admNo = document.getElementById("studentSelect").value;
+      if (admNo !== "ALL") {
+        updateRemarks(admNo, val);
+        renderPage1Table();
+      }
+    }
+
+    // RENDER PAGE 2: DAILY CLASS SUMMARY (Filtered to active range)
+    function renderPage2Summary() {
+      const tbody = document.getElementById("summaryTableBody");
+      tbody.innerHTML = "";
+
+      const selectedClass = document.getElementById("classSelect").value;
+      const classStudents = masterStudents.filter(s => s.class === selectedClass);
+      const totalStudentsCount = classStudents.length;
+
+      const dayNamesShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      let totalClassMarksSum = 0;
+      let totalClassPresentDays = 0;
+
+      for (let day = activeRangeStart; day <= activeRangeEnd; day++) {
+        const dObj = new Date(selectedYear, selectedMonthIndex, day);
+        const dayOfWeek = dObj.getDay();
+        const isOff = offDaysSet.has(dayOfWeek);
+
+        const tr = document.createElement("tr");
+        tr.className = isOff ? "cell-off-day" : "hover:bg-slate-50 transition";
+
+        const dayFormatted = `${String(day).padStart(2, '0')}/${String(selectedMonthIndex + 1).padStart(2, '0')}`;
+
+        if (isOff) {
+          tr.innerHTML = `
+            <td class="border border-slate-400 py-1.5 px-1 font-bold">${dayFormatted}</td>
+            <td class="border border-slate-400 py-1.5 px-1 font-medium">${dayNamesShort[dayOfWeek]}</td>
+            <td colspan="8" class="border border-slate-400 py-1.5 px-3 text-center text-slate-400 italic font-bold">OFF DAY</td>
+          `;
+          tbody.appendChild(tr);
+          continue;
+        }
+
+        let presentCount = 0;
+        let absentCount = 0;
+        let marksSum = 0;
+        let below5Count = 0;
+
+        classStudents.forEach(st => {
+          const rec = marksRecord[st.admNo]?.marks[day];
+          if (rec !== undefined && rec !== null && rec !== "") {
+            const strVal = String(rec).toUpperCase();
+            if (strVal === "A") {
+              absentCount++;
+            } else if (!isNaN(Number(strVal))) {
+              const score = Number(strVal);
+              presentCount++;
+              marksSum += score;
+              if (score < 5) below5Count++;
+            }
+          }
+        });
+
+        if (presentCount > 0) {
+          totalClassMarksSum += marksSum;
+          totalClassPresentDays += presentCount;
+        }
+
+        const classAvg = presentCount > 0 ? (marksSum / presentCount).toFixed(1) : "-";
+        const topicData = dailyTopicRecord[day] || { topic: "", gaps: "", remedial: "" };
+
+        tr.innerHTML = `
+          <td class="border border-slate-400 py-1.5 px-1 font-bold text-slate-800 bg-white">${dayFormatted}</td>
+          <td class="border border-slate-400 py-1.5 px-1 font-medium text-slate-700 bg-white">${dayNamesShort[dayOfWeek]}</td>
+          <td class="border border-slate-400 py-1 px-2 text-left bg-white font-medium text-slate-900">
+            <input type="text" value="${topicData.topic}" placeholder="Topic tested..." onchange="updateSummaryTopicField(${day}, 'topic', this.value)" class="w-full bg-transparent border-none p-0 focus:ring-1 focus:ring-emerald-500 font-medium text-xs">
+          </td>
+          <td class="border border-slate-400 py-1.5 px-1 font-bold bg-white text-slate-800">${totalStudentsCount}</td>
+          <td class="border border-slate-400 py-1.5 px-1 font-bold text-emerald-800 bg-emerald-50">${presentCount}</td>
+          <td class="border border-slate-400 py-1.5 px-1 font-bold text-red-600 bg-red-50">${absentCount}</td>
+          <td class="border border-slate-400 py-1.5 px-1 font-extrabold sheet-green-light text-emerald-950">${classAvg}</td>
+          <td class="border border-slate-400 py-1.5 px-1 font-bold text-amber-900 sheet-yellow-light">${below5Count}</td>
+          <td class="border border-slate-400 py-1 px-2 text-left bg-white text-slate-700">
+            <input type="text" value="${topicData.gaps}" placeholder="Common mistakes..." onchange="updateSummaryTopicField(${day}, 'gaps', this.value)" class="w-full bg-transparent border-none p-0 focus:ring-1 focus:ring-emerald-500 text-xs">
+          </td>
+          <td class="border border-slate-400 py-1 px-2 text-left sheet-blue-light text-sky-950">
+            <input type="text" value="${topicData.remedial}" placeholder="Remedial action..." onchange="updateSummaryTopicField(${day}, 'remedial', this.value)" class="w-full bg-transparent border-none p-0 focus:ring-1 focus:ring-blue-500 text-xs font-medium">
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      }
+
+      const finalMonthlyAvg = totalClassPresentDays > 0 ? (totalClassMarksSum / totalClassPresentDays).toFixed(1) : "0.0";
+      document.getElementById("summaryClassMonthlyAvg").innerText = finalMonthlyAvg;
+    }
+
+    function updateSummaryTopicField(day, field, val) {
+      if (!dailyTopicRecord[day]) dailyTopicRecord[day] = { topic: "", gaps: "", remedial: "" };
+      dailyTopicRecord[day][field] = val;
+    }
+
+    // TOPIC MODAL
+    function toggleTopicModal() {
+      const modal = document.getElementById("topicModal");
+      modal.classList.toggle("hidden");
+      modal.classList.toggle("flex");
+      if (!modal.classList.contains("hidden")) populateTopicDayDropdown();
+    }
+
+    function populateTopicDayDropdown() {
+      const select = document.getElementById("topicDaySelect");
+      select.innerHTML = "";
+      const dayNamesShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+      for (let day = activeRangeStart; day <= activeRangeEnd; day++) {
+        const dObj = new Date(selectedYear, selectedMonthIndex, day);
+        if (!offDaysSet.has(dObj.getDay())) {
+          const opt = document.createElement("option");
+          opt.value = day;
+          opt.innerText = `Day ${day} (${dayNamesShort[dObj.getDay()]})`;
+          select.appendChild(opt);
+        }
+      }
+      loadDayTopicFields();
+    }
+
+    function loadDayTopicFields() {
+      const day = document.getElementById("topicDaySelect").value;
+      const data = dailyTopicRecord[day] || { topic: "", gaps: "", remedial: "" };
+      document.getElementById("topicInput").value = data.topic || "";
+      document.getElementById("gapsInput").value = data.gaps || "";
+      document.getElementById("remedialInput").value = data.remedial || "";
+    }
+
+    function saveDayTopic() {
+      const day = document.getElementById("topicDaySelect").value;
+      dailyTopicRecord[day] = {
+        topic: document.getElementById("topicInput").value,
+        gaps: document.getElementById("gapsInput").value,
+        remedial: document.getElementById("remedialInput").value
+      };
+      toggleTopicModal();
+      renderPage2Summary();
+      showToast(`Topic & observations saved for Day ${day}.`);
+    }
+
+    // VIEW SWITCHER
+    function switchView(view) {
+      const p1 = document.getElementById("reportPage1");
+      const p2 = document.getElementById("reportPage2");
+      const btn1 = document.getElementById("tabBtn1");
+      const btn2 = document.getElementById("tabBtn2");
+
+      if (view === "page1") {
+        p1.classList.remove("hidden");
+        p2.classList.add("hidden");
+        btn1.className = "px-3 py-1.5 rounded-lg bg-white shadow-sm text-emerald-900 transition font-bold";
+        btn2.className = "px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition font-medium";
+      } else {
+        p1.classList.add("hidden");
+        p2.classList.remove("hidden");
+        btn2.className = "px-3 py-1.5 rounded-lg bg-white shadow-sm text-emerald-900 transition font-bold";
+        btn1.className = "px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition font-medium";
+      }
+    }
+
+    // ROBUST GOOGLE SHEETS FETCH & SAVE (With HTML / CORS Error Handling)
+    async function fetchSheetData() {
+      if (!scriptURL) {
+        openSettingsModal();
+        return;
+      }
+
+      const btn = document.getElementById("btnFetch");
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Syncing...`;
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(scriptURL);
+        const rawText = await res.text();
+        
+        let data;
+        try {
+          data = JSON.parse(rawText);
+        } catch (jsonErr) {
+          if (rawText.includes("<!DOCTYPE") || rawText.includes("<html")) {
+            throw new Error("Google returned an HTML web page instead of JSON. Ensure your Apps Script Web App is deployed with 'Execute as: Me' and 'Who has access: Anyone', and verify you are using the '/exec' URL.");
+          }
+          throw new Error("Server response: " + rawText.substring(0, 120));
+        }
+
+        if (data.status === "success") {
+          if (data.students && data.students.length > 1) {
+            masterStudents = data.students.slice(1).map(r => ({
+              class: String(r[0] || "").trim(),
+              rollNo: String(r[1] || "").trim(),
+              name: String(r[2] || "").trim(),
+              admNo: String(r[3] || "").trim()
+            })).filter(s => s.name && s.admNo);
+          }
+
+          if (data.subjects && data.subjects.length > 1) {
+            masterSubjects = data.subjects.slice(1).map(r => ({
+              class: String(r[0] || "").trim(),
+              subject: String(r[1] || "").trim()
+            })).filter(s => s.class && s.subject);
+          }
+
+          initDefaultMarks();
+          populateClassDropdown();
+
+          document.getElementById("syncBadge").innerText = "Sheets Synced";
+          document.getElementById("syncBadge").className = "text-[10px] px-2 py-0.5 rounded-full font-medium bg-emerald-100 text-emerald-800";
+          showToast("Data synchronized from Google Sheets!");
+        } else {
+          showToast("Error: " + data.message);
+        }
+      } catch (err) {
+        alert("Failed to pull from Google Sheet:\n\n" + err.message);
+      } finally {
+        btn.innerHTML = `<i class="fa-solid fa-arrows-rotate"></i> Pull Sheet Data`;
+        btn.disabled = false;
+      }
+    }
+
+    async function saveToSheet() {
+      if (!scriptURL) {
+        openSettingsModal();
+        return;
+      }
+
+      const btn = document.getElementById("btnSave");
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving...`;
+      btn.disabled = true;
+
+      try {
+        const selectedClass = document.getElementById("classSelect").value;
+        const visibleStudents = masterStudents.filter(s => s.class === selectedClass);
+
+        // Page 1 Sheet Data for active range
+        const p1Header1 = ["Sr. No", "Student Name", "Roll No", `Daily Quick Test Marks (Out of 10) - (${reportTypeTitle})`];
+        for (let i = activeRangeStart; i < activeRangeEnd; i++) p1Header1.push("");
+        p1Header1.push("Total", "Average", "Monthly Assessment (SBA)", "Remarks");
+
+        const p1Header2 = ["", "", ""];
+        for (let day = activeRangeStart; day <= activeRangeEnd; day++) p1Header2.push(day);
+        p1Header2.push("", "", "", "");
+
+        const p1DataRows = visibleStudents.map((st, i) => {
+          const stats = calculateStudentStats(st.admNo);
+          const dayCols = [];
+          for (let day = activeRangeStart; day <= activeRangeEnd; day++) {
+            const raw = marksRecord[st.admNo]?.marks[day];
+            dayCols.push(raw !== undefined ? raw : "");
+          }
+          return [i + 1, st.name, st.rollNo, ...dayCols, stats.sum, stats.avg, marksRecord[st.admNo]?.sba || 0, marksRecord[st.admNo]?.remarks || ""];
+        });
+
+        // Page 2 Sheet Data for active range
+        const p2Header = ["Date", "Day", "Topic Tested", "Total Students", "Present", "Absent", "Class Average", "Below 5", "Key Gaps", "Remedial Action"];
+        const p2DataRows = [];
+
+        for (let day = activeRangeStart; day <= activeRangeEnd; day++) {
+          const dObj = new Date(selectedYear, selectedMonthIndex, day);
+          const isOff = offDaysSet.has(dObj.getDay());
+          if (isOff) {
+            p2DataRows.push([`${day}/${selectedMonthIndex + 1}`, "OFF", "OFF DAY", "-", "-", "-", "-", "-", "-", "-"]);
+            continue;
+          }
+          let present = 0, absent = 0, sum = 0, below5 = 0;
+          visibleStudents.forEach(st => {
+            const val = marksRecord[st.admNo]?.marks[day];
+            if (val !== undefined && val !== "") {
+              if (String(val).toUpperCase() === "A") absent++;
+              else {
+                present++;
+                sum += Number(val);
+                if (Number(val) < 5) below5++;
+              }
+            }
+          });
+          const avg = present > 0 ? (sum / present).toFixed(1) : "-";
+          const tData = dailyTopicRecord[day] || { topic: "", gaps: "", remedial: "" };
+          p2DataRows.push([`${day}/${selectedMonthIndex + 1}`, dObj.toLocaleString('en-US', { weekday: 'short' }), tData.topic, visibleStudents.length, present, absent, avg, below5, tData.gaps, tData.remedial]);
+        }
+
+        const payload = {
+          action: "saveAll",
+          studentRows: [p1Header1, p1Header2, ...p1DataRows],
+          summaryRows: [p2Header, ...p2DataRows]
+        };
+
+        const res = await fetch(scriptURL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload)
+        });
+
+        const rawText = await res.text();
+        let resJson;
+        try {
+          resJson = JSON.parse(rawText);
+        } catch (jsonErr) {
+          if (rawText.includes("<!DOCTYPE") || rawText.includes("<html")) {
+            throw new Error("Google returned an HTML web page instead of JSON. Ensure your Apps Script Web App is deployed with 'Execute as: Me' and 'Who has access: Anyone', and verify you are using the '/exec' URL.");
+          }
+          throw new Error("Server response: " + rawText.substring(0, 120));
+        }
+
+        if (resJson.status === "success") {
+          showToast("Saved Marks & Daily Summary to Google Sheet!");
+        } else {
+          showToast("Error: " + resJson.message);
+        }
+      } catch (err) {
+        alert("Push to Google Sheet failed:\n\n" + err.message);
+      } finally {
+        btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Save to Sheet`;
+        btn.disabled = false;
+      }
+    }
+
+    // SETTINGS MODAL & BRANDING
+    function openSettingsModal() {
+      document.getElementById("settingsModal").classList.remove("hidden");
+      document.getElementById("settingsModal").classList.add("flex");
+    }
+
+    function closeSettingsModal() {
+      document.getElementById("settingsModal").classList.add("hidden");
+      document.getElementById("settingsModal").classList.remove("flex");
+    }
+
+    function saveSettings() {
+      const url = document.getElementById("scriptUrlInput").value.trim();
+      const school = document.getElementById("settingSchoolName").value.trim();
+      const emis = document.getElementById("settingEmisCode").value.trim();
+
+      scriptURL = url;
+      localStorage.setItem("sheetScriptURL", url);
+      localStorage.setItem("app_school_name", school);
+      localStorage.setItem("app_emis_code", emis);
+
+      document.getElementById("p1SchoolName").innerText = school;
+      document.getElementById("p2SchoolName").innerText = school;
+      document.getElementById("p1EmisCode").innerText = emis;
+      document.getElementById("p2EmisCode").innerText = emis;
+
+      closeSettingsModal();
+      showToast("Settings applied!");
+      if (url) fetchSheetData();
+    }
+
+    function uploadImage(e, type) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const dataUrl = evt.target.result;
+        localStorage.setItem("img_" + type, dataUrl);
+
+        if (type === "logo") {
+          document.getElementById("p1SchoolLogo").src = dataUrl;
+          document.getElementById("p2SchoolLogo").src = dataUrl;
+        } else if (type === "cm") {
+          document.getElementById("cmPunjabPhoto1").src = dataUrl;
+          document.getElementById("cmPunjabPhoto2").src = dataUrl;
+        } else if (type === "p1Header") {
+          document.getElementById("p1HeaderBannerImg").src = dataUrl;
+          document.getElementById("p1HeaderBannerContainer").classList.remove("hidden");
+        } else if (type === "p1Footer") {
+          document.getElementById("p1FooterBannerImg").src = dataUrl;
+          document.getElementById("p1FooterBannerContainer").classList.remove("hidden");
+        } else if (type === "p2Header") {
+          document.getElementById("p2HeaderBannerImg").src = dataUrl;
+          document.getElementById("p2HeaderBannerContainer").classList.remove("hidden");
+        } else if (type === "p2Footer") {
+          document.getElementById("p2FooterBannerImg").src = dataUrl;
+          document.getElementById("p2FooterBannerContainer").classList.remove("hidden");
+        }
+        showToast("Image updated.");
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeImage(type) {
+      localStorage.removeItem("img_" + type);
+      if (type === "p1Header") document.getElementById("p1HeaderBannerContainer").classList.add("hidden");
+      if (type === "p1Footer") document.getElementById("p1FooterBannerContainer").classList.add("hidden");
+      if (type === "p2Header") document.getElementById("p2HeaderBannerContainer").classList.add("hidden");
+      if (type === "p2Footer") document.getElementById("p2FooterBannerContainer").classList.add("hidden");
+      showToast("Image removed.");
+    }
+
+    function loadSavedBranding() {
+      const savedSchool = localStorage.getItem("app_school_name");
+      if (savedSchool) {
+        document.getElementById("p1SchoolName").innerText = savedSchool;
+        document.getElementById("p2SchoolName").innerText = savedSchool;
+        document.getElementById("settingSchoolName").value = savedSchool;
+      }
+
+      const savedEmis = localStorage.getItem("app_emis_code");
+      if (savedEmis) {
+        document.getElementById("p1EmisCode").innerText = savedEmis;
+        document.getElementById("p2EmisCode").innerText = savedEmis;
+        document.getElementById("settingEmisCode").value = savedEmis;
+      }
+
+      ["logo", "cm", "p1Header", "p1Footer", "p2Header", "p2Footer"].forEach(type => {
+        const saved = localStorage.getItem("img_" + type);
+        if (saved) {
+          if (type === "logo") {
+            document.getElementById("p1SchoolLogo").src = saved;
+            document.getElementById("p2SchoolLogo").src = saved;
+          }
+          if (type === "cm") {
+            document.getElementById("cmPunjabPhoto1").src = saved;
+            document.getElementById("cmPunjabPhoto2").src = saved;
+          }
+          if (type === "p1Header") {
+            document.getElementById("p1HeaderBannerImg").src = saved;
+            document.getElementById("p1HeaderBannerContainer").classList.remove("hidden");
+          }
+          if (type === "p1Footer") {
+            document.getElementById("p1FooterBannerImg").src = saved;
+            document.getElementById("p1FooterBannerContainer").classList.remove("hidden");
+          }
+          if (type === "p2Header") {
+            document.getElementById("p2HeaderBannerImg").src = saved;
+            document.getElementById("p2HeaderBannerContainer").classList.remove("hidden");
+          }
+          if (type === "p2Footer") {
+            document.getElementById("p2FooterBannerImg").src = saved;
+            document.getElementById("p2FooterBannerContainer").classList.remove("hidden");
+          }
+        }
+      });
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      document.getElementById("toastMessage").innerText = msg;
+      toast.classList.remove("hidden");
+      toast.classList.add("flex");
+      setTimeout(() => {
+        toast.classList.add("hidden");
+        toast.classList.remove("flex");
+      }, 3500);
+    }
+  </script>
+</body>
+</html>
